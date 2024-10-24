@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using WebApplicationFactoryDemo.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -6,6 +7,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddControllers();
+
+builder.Services.AddScoped<ToDoItemRepository>();
 
 var app = builder.Build();
 
@@ -18,24 +22,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapGet("/item", () =>
-    {
-        return ToDoItemContext.Items.ToList();
-    })
-    .WithName("GetTodoItems")
-    .WithOpenApi();
-
-app.MapPost("/item", (AddToDoItemRequest request) =>
-    {
-        var item = new ToDoItem(
-            ToDoItemContext.Items.Count + 1,
-            request.Description,
-            request.DueDate);
-        ToDoItemContext.Items.Add(item);
-        return Results.Created($"/item/{item.Id}", item);
-    })
-    .WithName("CreateTodoItem")
-    .WithOpenApi();
+app.MapControllers();
 
 app.Run();
 
